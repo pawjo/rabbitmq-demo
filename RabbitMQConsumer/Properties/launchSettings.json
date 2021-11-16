@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RabbitMQConsumer": {
+      "commandName": "Project",
+      "commandLineArgs": "-queue demo-with-ex2 -user guest -password guest"
+    }
+  }
+}
