@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "RabbitMQProducer": {
+      "commandName": "Project",
+      "commandLineArgs": "-user guest -password guest -exchange demoExchange"
+    }
+  }
+}
