@@ -1,6 +1,7 @@
 ﻿using RabbitMQ.Client;
 using System;
 using System.Text;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace RabbitMQProducer
 {
@@ -11,6 +12,7 @@ namespace RabbitMQProducer
         static void Main(string[] args)
         {
             _args = args;
+            string name = readArg("-name");
             string host = readArg("-host", "localhost");
             string user = readArg("-user");
             string password = readArg("-password");
@@ -37,11 +39,28 @@ namespace RabbitMQProducer
                         string input = Console.ReadLine();
 
                         if (input == "exit")
-                            return;
+                            End();
 
                         Console.WriteLine("Sending: " + input);
 
-                        Send(exchange, queue, channel, input);
+                        string time = DateTime.Now + ": ";
+                        string message = time + input;
+
+                        if (name != null)
+                        {
+                            message = $"{time} {name} send: {input}";
+                        }
+
+                        try
+                        {
+                            Send(exchange, queue, channel, message);
+                        }
+                        catch (Exception e)
+                        {
+                            Console.WriteLine("Connection error:");
+                            Console.Write(e.Message);
+                            End();
+                        }
                     }
                 }
             }
@@ -58,6 +77,13 @@ namespace RabbitMQProducer
                 routingKey: queue,
                 basicProperties: null,
                 body: message);
+        }
+
+        private static void End()
+        {
+            Console.WriteLine("\nEnd");
+            Console.ReadKey();
+            Environment.Exit(0);
         }
 
         private static string readArg(string key, string defaultValue = null)

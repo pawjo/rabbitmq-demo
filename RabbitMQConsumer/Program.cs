@@ -17,6 +17,7 @@ namespace RabbitMQConsumer
             string strPort = readArg("-port", "5672");
             int port = int.Parse(strPort);
             string queue = readArg("-queue", "");
+            var declareQueue = readArg("-declare-queue");
 
             using (var connection = GetConnection(host, user, password, port))
             {
@@ -24,11 +25,14 @@ namespace RabbitMQConsumer
                 {
                     Console.WriteLine("Consumer starts...");
 
-                    //channel.QueueDeclare(queue: queue,
-                    //    arguments: null,
-                    //    exclusive: false,
-                    //    autoDelete: false,
-                    //    durable: false);
+                    if (declareQueue != null && declareQueue == "true")
+                    {
+                        channel.QueueDeclare(queue: queue,
+                            arguments: null,
+                            exclusive: false,
+                            autoDelete: false,
+                            durable: false);
+                    }
 
                     var consumer = new EventingBasicConsumer(channel);
 
@@ -38,11 +42,20 @@ namespace RabbitMQConsumer
                         Console.WriteLine("Message: " + Encoding.UTF8.GetString(message));
                     };
 
-                    while (true)
+                    try
                     {
-                        channel.BasicConsume(queue: queue,
-                            autoAck: true,
-                            consumer: consumer);
+                        while (true)
+                        {
+                            channel.BasicConsume(queue: queue,
+                                autoAck: true,
+                                consumer: consumer);
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine("Connection error:");
+                        Console.Write(e.Message);
+                        Console.ReadKey();
                     }
                 }
             }
